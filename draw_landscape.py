@@ -3,7 +3,8 @@ import pygame
 
 class House:
 
-    def __init__(self, x, y, width, height, color, surface):
+    def __init__(self, x, y, width, height, walls_color, roof_color,
+                 window_color, surface):
         """
             x, y are the coords of the left bottom corner of the house wall
         """
@@ -11,25 +12,70 @@ class House:
         self.y = y
         self.width = width
         self.height = height
-        self.color = color
+        self.walls_color = walls_color
+        self.roof_color = roof_color
+        self.window_color = window_color
         self.surface = surface
         self.walls_height = (self.height * 2) // 3
         self.roof_height = self.height // 3
-        self.wall_points = None
 
     def draw_walls(self):
-        wall_points = (self.x, self.y - self.walls_height,
-                       self.x + self.width, self.y)
-        pygame.draw.rect(self.surface, self.color, wall_points)
+        wall_points = ((self.x, self.y - self.walls_height),
+                       (self.x + self.width, self.y - self.walls_height),
+                       (self.x + self.width, self.y),
+                       (self.x, self.y))
+        pygame.draw.polygon(self.surface, self.walls_color, wall_points)
+        # draw_points(wall_points, self.surface)
 
     def draw_roof(self):
-        pass
+        roof_points = ((self.x, self.y - self.walls_height),
+                       (self.x + self.width, self.y - self.walls_height),
+                       (self.x + self.width // 2,
+                        self.y - self.walls_height - self.roof_height))
+        pygame.draw.polygon(self.surface, self.roof_color, roof_points)
+        # draw_points(roof_points, self.surface)
 
     def draw_window(self):
-        pass
+        left_bottom_window_point = (self.x + self.width // 3,
+                                    self.y - self.walls_height // 3)
+        left_top_window_point = (self.x + self.width // 3,
+                                 self.y - (self.walls_height // 3) * 2)
+        right_top_window_point = (self.x + (self.width // 3) * 2,
+                                  self.y - (self.walls_height // 3) * 2)
+        right_bottom_wondow_point = (self.x + (self.width // 3) * 2,
+                                     self.y - self.walls_height // 3)
+
+        window_points = (left_bottom_window_point, left_top_window_point,
+                         right_top_window_point, right_bottom_wondow_point)
+        pygame.draw.polygon(self.surface, self.window_color, window_points)
+        # draw_points(window_points, self.surface)
+
+    def draw_shadow_walls(self, sun, lenght):
+        """
+            left bottom and right bottom points of the wall are used for shadow
+            polygone and left top and right top will be send into
+            :create_shadow_point(point, sun) functoin
+            FIXME :length for a while didn't implimented.
+            self.x, y are the coords of the left bottom corner
+            of the house wall
+        """
+        first_point = (self.x, self.y)
+        second_point = create_shadow_point((self.x, self.y -
+                                            self.walls_height), sun)
+        third_point = create_shadow_point(
+            (self.x + self.width // 2, self.y - self.walls_height +
+             self.roof_height), sun)
+        fourth_point = create_shadow_point((self.x + self.width, self.y -
+                                           self.walls_height), sun)
+        fiveth_point = (self.x + self.width, self.y)
+        house_shadow_points = (first_point, second_point, third_point,
+                               fourth_point, fiveth_point)
+        roof_shadow_points = (first_point, fourth_point, third_point, fiveth_point)
+        pygame.draw.polygon(self.surface, "black", house_shadow_points)
+        pygame.draw.polygon(self.surface, "black", roof_shadow_points)
+        # draw_points(house_shadow_points, self.surface)
 
     def draw_house(self):
-        # self.wall_points = ((self.x, self.y),
         self.draw_walls()
         self.draw_roof()
         self.draw_window()
@@ -74,19 +120,18 @@ class Stick:
             first and second shadow polygone points are left and right bottom
             points of stick
             third point is the proection on the same line as from center of
-            a sun and right bottom point of the stick with lenght @lenght
+            a sun and right bottom point of the stick with some scale
+            FIXME :length for a while didn't implimented.
         """
         shadow_first_point = (self.x, self.y)
         shadow_second_point = (self.x + self.width, self.y)
-        shadow_third_point_x = ((self.x + self.width - sun.x) + self.x +\
-                                 self.width)
-        shadow_third_point_y = (self.y - sun.y) + self.y
-        shadow_fourth_point_x = (self.x - sun.x) + self.x
-        shadow_fourth_point_y = (self.y - sun.y) + self.y
-        shadow_fourth_point = (shadow_fourth_point_x, shadow_fourth_point_y)
-        shadow_third_point = (shadow_third_point_x, shadow_third_point_y)
+        shadow_third_point_function = create_shadow_point((self.x + self.width,
+                                                           self.y), sun)
+        shadow_fourth_point_function = create_shadow_point((self.x, self.y),
+                                                           sun)
         shadow_points = (shadow_first_point, shadow_second_point,
-                         shadow_third_point, shadow_fourth_point)
+                         shadow_third_point_function,
+                         shadow_fourth_point_function)
         pygame.draw.polygon(self.surface, "black", shadow_points)
 
 
@@ -101,8 +146,12 @@ class Sun:
         self.surface = surface
         self.color = color
 
-    def move(self):
-        self.x += self.x_speed
+    def move(self, window_width, sun_x, sun_y):
+        if self.x < window_width + self.radius:
+            self.x += self.x_speed
+        else:
+            self.x = sun_x
+            self.y = sun_y
         self.y += self.y_speed
 
     def draw(self):
@@ -118,14 +167,26 @@ def bg_draw(surface, color, points):
     pygame.draw.polygon(surface, color, (points))
 
 
+def draw_points(points, surface):
+    for point in points:
+        pygame.draw.circle(surface, "green", point, 2, 2)
+
+
+def create_shadow_point(point, sun):
+    point_x = point[0]
+    point_y = point[1]
+    result_x = (point_x - sun.x) + point_x
+    result_y = (point_y - sun.y) + point_y
+    return (result_x, result_y)
+
+
 def main():
-    pygame.init()
     window_width = 500
     window_height = 600
-    sun_x = 20
+    sun_x = -25
     sun_y = 140
     sun_radius = 20
-    sun_color = "yellow"
+    sun_color = "VioletRed1"
     sun_x_speed = 5
     sun_y_speed = 1
     snow_first_point = (-3, 250)
@@ -138,23 +199,28 @@ def main():
     stick_height = 90
     stick_color = "brown"
     stick_shadow_length = 50
-    house_x = 100
-    house_y = 200
-    house_width = 90
+    house_x = 120
+    house_y = 330
+    house_width = 60
     house_height = 80
-    house_color = "orange"
-
+    house_walls_color = "gray"
+    house_roof_color = "turquoise"
+    house_window_color = "yellow"
+    house_shadow_length = 50
     points = (snow_first_point, snow_second_point, snow_third_point,
               snow_fourth_point)
     run = True
+
+    pygame.init()
     clock = pygame.time.Clock()
-    pygame.display.set_caption("Sun")
+    pygame.display.set_caption("Landscape")
     win = pygame.display.set_mode((window_width, window_height))
     sun = Sun(sun_x, sun_y, sun_radius, sun_x_speed, sun_y_speed, win,
               sun_color)
     stick = Stick(stick_x, stick_y, stick_width, stick_height, win,
                   stick_color)
-    house = House(house_x, house_y, house_width, house_height, house_color, win)
+    house = House(house_x, house_y, house_width, house_height,
+                  house_walls_color, house_roof_color, house_window_color, win)
 
     while run:
         clock.tick(10)
@@ -163,11 +229,12 @@ def main():
                 run = False
 
         bg_draw(win, "white", points)
-        sun.move()
+        sun.move(window_width, sun_x, sun_y)
         sun.draw()
         stick.draw()
         stick.draw_shadow(sun, stick_shadow_length)
         house.draw_house()
+        house.draw_shadow_walls(sun, house_shadow_length)
         pygame.display.update()
     pygame.quit()
 
