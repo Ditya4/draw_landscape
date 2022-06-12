@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 
 
 class House:
@@ -85,8 +86,8 @@ class House:
 class Tree:
 
     def __init__(self, x, y, lower_segment_width, lower_segment_height,
-                 trunk_width, trunk_height, surface, trunk_color="brown",
-                 crown_color="green"):
+                 trunk_width, trunk_height, crown_size, surface,
+                 trunk_color="brown", crown_color="green"):
         """
             x, y are the coords of the left bottom of the tree trunk
         """
@@ -96,6 +97,7 @@ class Tree:
         self.height = lower_segment_height
         self.trunk_width = trunk_width
         self.trunk_height = trunk_height
+        self.crown_size = crown_size
         self.surface = surface
         self.trunk_color = trunk_color
         self.crown_color = crown_color
@@ -112,7 +114,8 @@ class Tree:
     def draw_tree_crone(self, i):
         """
             we have center and first segment height and width, so
-            lets for the very begining put only first triangle
+            go just draw a triangle, and decrease some height within
+            every calls of this medhod
         """
         lower_center_x = self.center_axis_x
         lower_center_y = self.y - self.trunk_height - (self.height - 7) * i
@@ -125,7 +128,7 @@ class Tree:
 
     def draw_tree(self):
         self.draw_tree_trunk()
-        for i in range(0, 8):
+        for i in range(0, self.crown_size):
             self.draw_tree_crone(i)
 
 
@@ -242,13 +245,16 @@ def main():
     house_window_color = "yellow"
     house_shadow_length = 50
     tree_x = 350
-    tree_y = 400
+    tree_y = 550
     tree_lower_segment_width = 55
     tree_lower_segment_height = 20
     tree_trunk_width = 5
     tree_trunk_height = 10
     tree_trunk_color = "brown"
-    tree_crown_color = "blue2"
+    tree_crown_colors = ("gold", "red", "orange")
+    tree_crown_color_index = 0
+    tree_crown_size = 8
+    trees = []
     points = (snow_first_point, snow_second_point, snow_third_point,
               snow_fourth_point)
     run = True
@@ -263,10 +269,19 @@ def main():
                   stick_color)
     house = House(house_x, house_y, house_width, house_height,
                   house_walls_color, house_roof_color, house_window_color, win)
+
+    for x in range(16):
+        tree_crown_color_index = x % 3
+        trees.append(Tree(tree_x - x * 20, tree_y - 5 * x,
+                          tree_lower_segment_width, tree_lower_segment_height,
+                          tree_trunk_width, tree_trunk_height, tree_crown_size,
+                          win, tree_trunk_color,
+                          tree_crown_colors[tree_crown_color_index]))
+    '''
     tree = Tree(tree_x, tree_y, tree_lower_segment_width,
                 tree_lower_segment_height, tree_trunk_width, tree_trunk_height,
-                win, tree_trunk_color, tree_crown_color)
-
+                tree_crown_size, win, tree_trunk_color, tree_crown_color)
+    '''
     while run:
         clock.tick(10)
         for event in pygame.event.get():
@@ -280,7 +295,8 @@ def main():
         stick.draw_shadow(sun, stick_shadow_length)
         house.draw_house()
         house.draw_shadow_walls(sun, house_shadow_length)
-        tree.draw_tree()
+        for tree in trees:
+            tree.draw_tree()
         pygame.display.update()
     pygame.quit()
 
