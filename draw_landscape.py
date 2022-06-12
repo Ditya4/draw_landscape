@@ -2,6 +2,44 @@ import pygame
 from random import randint
 
 
+class Mushroom:
+
+    def __init__(self, x, y, hat_width, hat_height, stalk_width, stalk_height,
+                 surface, hat_color, stalk_color):
+        """
+            x, y — are a left botoom corner of the mushroom's stalk
+        """
+        self.x = x
+        self.y = y
+        self.hat_width = hat_width
+        self.hat_height = hat_height
+        self.stalk_width = stalk_width
+        self.stalk_height = stalk_height
+        self.surface = surface
+        self.hat_color = hat_color
+        self.stalk_color = stalk_color
+        self.center_axis_x = self.x + self.stalk_width // 2
+
+    def draw_stalk(self):
+        mushroom_stalk_points = ((self.x, self.y),
+                                 (self.x, self.y - self.stalk_height),
+                                 (self.x + self.stalk_width, self.y -
+                                  self.stalk_height),
+                                 (self.x + self.stalk_width, self.y))
+        pygame.draw.polygon(self.surface, self.stalk_color,
+                            mushroom_stalk_points)
+
+    def draw_hat(self):
+        ellipse_points = ((self.x + self.stalk_width // 2 - self.hat_width // 2,
+                           self.y - self.stalk_height - self.hat_height,
+                           self.hat_width, self.hat_height))
+        pygame.draw.ellipse(self.surface, self.hat_color, ellipse_points)
+
+    def draw_mushroom(self):
+        self.draw_stalk()
+        self.draw_hat()
+
+
 class House:
 
     def __init__(self, x, y, width, height, walls_color, roof_color,
@@ -205,7 +243,6 @@ def bg_draw(surface, color, points):
 
 def draw_points(points, surface):
     for point in points:
-        print(point)
         pygame.draw.circle(surface, "green", point, 2, 2)
 
 
@@ -226,8 +263,9 @@ def main():
     sun_color = "VioletRed1"
     sun_x_speed = 5
     sun_y_speed = 1
+    right_horizont_y = 350
     snow_first_point = (-3, 250)
-    snow_second_point = (602, 350)
+    snow_second_point = (602, right_horizont_y)
     snow_third_point = (602, 602)
     snow_fourth_point = (-3, 602)
     stick_x = 250
@@ -243,18 +281,31 @@ def main():
     house_walls_color = "cyan"
     house_roof_color = "turquoise"
     house_window_color = "yellow"
-    house_shadow_length = 50
-    tree_x = 350
-    tree_y = 550
+    house_shadow_length = 100
+    # tree_x = 350
+    # tree_y = 550
     tree_lower_segment_width = 55
     tree_lower_segment_height = 20
     tree_trunk_width = 5
     tree_trunk_height = 10
     tree_trunk_color = "brown"
-    tree_crown_colors = ("gold", "red", "orange", "purple", "dark violet", "firebrick1")
+    tree_crown_colors = ("gold", "red", "orange", "purple", "dark violet",
+                         "firebrick1")
     tree_crown_color_index = 0
-    tree_crown_size = 8
+    tree_crown_size = 4
+    trees_count = 5
     trees = []
+    # mushroom_x = 400
+    # mushroom_y = 400
+    # for symetry stalk_width and hat_width should be even numbers
+    mushroom_hat_width = 30
+    mushroom_hat_height = 10
+    mushroom_stalk_width = 6
+    mushroom_stalk_height = 16
+    mushroom_hat_colors = ("red", "green")
+    mushroom_stalk_color = "brown"
+    mushrooms_count = 8
+    mushrooms = []
     points = (snow_first_point, snow_second_point, snow_third_point,
               snow_fourth_point)
     run = True
@@ -270,21 +321,29 @@ def main():
     house = House(house_x, house_y, house_width, house_height,
                   house_walls_color, house_roof_color, house_window_color, win)
 
-    for x in range(25):
-        tree_crown_color_index = x % len(tree_crown_colors)
+    for number in range(trees_count):
+        tree_crown_color_index = number % len(tree_crown_colors)
         trees.append(Tree(randint(tree_lower_segment_width // 2,
                                   window_width -
                                   tree_lower_segment_width // 2),
-                          randint(350, window_height),
+                          randint(right_horizont_y, window_height),
                           tree_lower_segment_width, tree_lower_segment_height,
                           tree_trunk_width, tree_trunk_height, tree_crown_size,
                           win, tree_trunk_color,
                           tree_crown_colors[tree_crown_color_index]))
-    '''
-    tree = Tree(tree_x, tree_y, tree_lower_segment_width,
-                tree_lower_segment_height, tree_trunk_width, tree_trunk_height,
-                tree_crown_size, win, tree_trunk_color, tree_crown_color)
-    '''
+
+    for number in range(mushrooms_count):
+        mushroom_hat_color_index = number % len(mushroom_hat_colors)
+        mushrooms.append(Mushroom(randint(tree_lower_segment_width // 2,
+                                  window_width -
+                                  tree_lower_segment_width // 2),
+                          randint(right_horizont_y, window_height),
+                          mushroom_hat_width,
+                          mushroom_hat_height, mushroom_stalk_width,
+                          mushroom_stalk_height, win,
+                          mushroom_hat_colors[mushroom_hat_color_index],
+                          mushroom_stalk_color))
+
     while run:
         clock.tick(10)
         for event in pygame.event.get():
@@ -300,6 +359,8 @@ def main():
         house.draw_shadow_walls(sun, house_shadow_length)
         for tree in trees:
             tree.draw_tree()
+        for mushroom in mushrooms:
+            mushroom.draw_mushroom()
         pygame.display.update()
     pygame.quit()
 
