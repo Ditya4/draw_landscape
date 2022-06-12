@@ -70,7 +70,8 @@ class House:
         fiveth_point = (self.x + self.width, self.y)
         house_shadow_points = (first_point, second_point, third_point,
                                fourth_point, fiveth_point)
-        roof_shadow_points = (first_point, fourth_point, third_point, fiveth_point)
+        roof_shadow_points = (first_point, fourth_point, third_point,
+                              fiveth_point)
         pygame.draw.polygon(self.surface, "black", house_shadow_points)
         pygame.draw.polygon(self.surface, "black", roof_shadow_points)
         # draw_points(house_shadow_points, self.surface)
@@ -84,7 +85,8 @@ class House:
 class Tree:
 
     def __init__(self, x, y, lower_segment_width, lower_segment_height,
-                 surface, trunk_color="brown", crown_color="green"):
+                 trunk_width, trunk_height, surface, trunk_color="brown",
+                 crown_color="green"):
         """
             x, y are the coords of the left bottom of the tree trunk
         """
@@ -92,29 +94,38 @@ class Tree:
         self.y = y
         self.width = lower_segment_width
         self.height = lower_segment_height
+        self.trunk_width = trunk_width
+        self.trunk_height = trunk_height
         self.surface = surface
         self.trunk_color = trunk_color
         self.crown_color = crown_color
+        self.center_axis_x = self.x + self.trunk_width // 2
 
     def draw_tree_trunk(self):
         tree_trunk_points = ((self.x, self.y),
-                             (self.x, self.y - self.height // 2),
-                             (self.x + self.width // 5, self.y -
-                              self.height // 2),
-                             (self.x + self.width // 5, self.y))
+                             (self.x, self.y - self.trunk_height),
+                             (self.x + self.trunk_width, self.y -
+                              self.trunk_height),
+                             (self.x + self.trunk_width, self.y))
         pygame.draw.polygon(self.surface, self.trunk_color, tree_trunk_points)
 
     def draw_tree_crone(self, i):
-        crone_points = ((self.x - 20 - i, self.y - self.height // 2 - 3 * i),)
-        print(crone_points)
-        draw_points(crone_points, self.surface)
-        print(i)
-        
-        
+        """
+            we have center and first segment height and width, so
+            lets for the very begining put only first triangle
+        """
+        lower_center_x = self.center_axis_x
+        lower_center_y = self.y - self.trunk_height - (self.height - 7) * i
+
+        crown_points = ((lower_center_x - self.width // 2, lower_center_y),
+                        (lower_center_x + self.width // 2, lower_center_y),
+                        (lower_center_x, lower_center_y - self.height))
+        pygame.draw.polygon(self.surface, self.crown_color, crown_points)
+        draw_points(crown_points, self.surface)
 
     def draw_tree(self):
         self.draw_tree_trunk()
-        for i in range(1, 10, 3):
+        for i in range(0, 8):
             self.draw_tree_crone(i)
 
 
@@ -234,8 +245,10 @@ def main():
     tree_y = 400
     tree_lower_segment_width = 55
     tree_lower_segment_height = 20
+    tree_trunk_width = 5
+    tree_trunk_height = 10
     tree_trunk_color = "brown"
-    tree_crown_color = "green"
+    tree_crown_color = "blue2"
     points = (snow_first_point, snow_second_point, snow_third_point,
               snow_fourth_point)
     run = True
@@ -251,8 +264,8 @@ def main():
     house = House(house_x, house_y, house_width, house_height,
                   house_walls_color, house_roof_color, house_window_color, win)
     tree = Tree(tree_x, tree_y, tree_lower_segment_width,
-                tree_lower_segment_height, win, tree_trunk_color,
-                tree_crown_color)
+                tree_lower_segment_height, tree_trunk_width, tree_trunk_height,
+                win, tree_trunk_color, tree_crown_color)
 
     while run:
         clock.tick(10)
