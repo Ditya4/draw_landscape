@@ -121,12 +121,11 @@ class House:
         pygame.draw.polygon(self.surface, self.window_color, window_points)
         # draw_points(window_points, self.surface)
 
-    def draw_shadow_house(self, sun, lenght):
+    def draw_shadow_house(self, sun):
         """
             left bottom and right bottom points of the wall are used for shadow
             polygone and left top and right top will be send into
             :create_shadow_point(point, sun) functoin
-            FIXME :length for a while didn't implimented.
             self.x, y are the coords of the left bottom corner
             of the house wall
         """
@@ -221,13 +220,12 @@ class Stick:
                   (self.x + self.width, self.y))
         pygame.draw.polygon(self.surface, self.color, points)
 
-    def draw_shadow(self, sun, lenght):
+    def draw_shadow(self, sun):
         """
             first and second shadow polygone points are left and right bottom
             points of stick
             third point is the proection on the same line as from center of
             a sun and right bottom point of the stick with some scale
-            FIXME :length for a while didn't implimented.
         """
         shadow_first_point = (self.x, self.y)
         shadow_second_point = (self.x + self.width, self.y)
@@ -306,7 +304,6 @@ def main():
     stick_width = 20
     stick_height = 90
     stick_color = "brown"
-    stick_shadow_length = 50
     house_x = 320
     house_y = 380
     house_width = 60
@@ -314,9 +311,6 @@ def main():
     house_walls_color = "cyan"
     house_roof_color = "turquoise"
     house_window_color = "yellow"
-    house_shadow_length = 100
-    # tree_x = 350
-    # tree_y = 550
     tree_lower_segment_width = 55
     tree_lower_segment_height = 20
     tree_trunk_width = 5
@@ -328,8 +322,6 @@ def main():
     tree_crown_size = 4
     trees_count = 30
     trees = []
-    # mushroom_x = 400
-    # mushroom_y = 400
     # for symetry stalk_width and hat_width should be even numbers
     mushroom_hat_width = 30
     mushroom_hat_height = 10
@@ -339,14 +331,12 @@ def main():
     mushroom_stalk_color = "brown"
     mushrooms_count = 30
     mushrooms = []
-    cloud_x = 30
-    cloud_y = 30
     cloud_width = 60
     cloud_height = 25
     cloud_x_speed = 5
     cloud_y_speed = 1
     cloud_colors = ("white", "MistyRose2", "PaleGreen1")
-    clouds_count = 50
+    clouds_count = 15
     clouds = []
     points = (snow_first_point, snow_second_point, snow_third_point,
               snow_fourth_point)
@@ -389,7 +379,8 @@ def main():
     for number in range(clouds_count):
         cloud_color_index = number % len(cloud_colors)
         clouds.append(Cloud(randint(-window_width, -cloud_width),
-                      randint(-cloud_height, left_horizont_y - cloud_height * 6),
+                      randint(-left_horizont_y, left_horizont_y -
+                              cloud_height * 6),
                       cloud_width, cloud_height, cloud_x_speed,
                       cloud_y_speed, win, cloud_colors[cloud_color_index]))
 
@@ -407,14 +398,13 @@ def main():
             cloud.move_cloud(window_width)
             cloud.draw_cloud()
         stick.draw()
-        stick.draw_shadow(sun, stick_shadow_length)
-        house.draw_shadow_house(sun, house_shadow_length)
+        stick.draw_shadow(sun)
+        house.draw_shadow_house(sun)
         house.draw_house()
         for tree in trees:
             tree.draw_tree()
         for mushroom in mushrooms:
             mushroom.draw_mushroom()
-
 
         pygame.display.update()
     pygame.quit()
