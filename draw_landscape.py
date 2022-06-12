@@ -240,7 +240,7 @@ def main():
     house_y = 330
     house_width = 60
     house_height = 80
-    house_walls_color = "gray"
+    house_walls_color = "cyan"
     house_roof_color = "turquoise"
     house_window_color = "yellow"
     house_shadow_length = 50
@@ -251,7 +251,7 @@ def main():
     tree_trunk_width = 5
     tree_trunk_height = 10
     tree_trunk_color = "brown"
-    tree_crown_colors = ("gold", "red", "orange")
+    tree_crown_colors = ("gold", "red", "orange", "purple", "dark violet", "firebrick1")
     tree_crown_color_index = 0
     tree_crown_size = 8
     trees = []
@@ -270,9 +270,12 @@ def main():
     house = House(house_x, house_y, house_width, house_height,
                   house_walls_color, house_roof_color, house_window_color, win)
 
-    for x in range(16):
-        tree_crown_color_index = x % 3
-        trees.append(Tree(tree_x - x * 20, tree_y - 5 * x,
+    for x in range(25):
+        tree_crown_color_index = x % len(tree_crown_colors)
+        trees.append(Tree(randint(tree_lower_segment_width // 2,
+                                  window_width -
+                                  tree_lower_segment_width // 2),
+                          randint(350, window_height),
                           tree_lower_segment_width, tree_lower_segment_height,
                           tree_trunk_width, tree_trunk_height, tree_crown_size,
                           win, tree_trunk_color,
