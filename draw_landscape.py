@@ -1,5 +1,6 @@
 import pygame
 from random import randint
+import snowflake as sn
 
 
 class Cloud:
@@ -338,6 +339,11 @@ def main():
     cloud_colors = ("white", "MistyRose2", "PaleGreen1")
     clouds_count = 15
     clouds = []
+    snowflake_radius = 8
+    snowflake_y_speed = 2
+    snowflake_colors = ("white", "blue", "pink")
+    snowflakes = []
+    snowflakes_count = 40
     points = (snow_first_point, snow_second_point, snow_third_point,
               snow_fourth_point)
     run = True
@@ -384,6 +390,16 @@ def main():
                       cloud_width, cloud_height, cloud_x_speed,
                       cloud_y_speed, win, cloud_colors[cloud_color_index]))
 
+    for number in range(snowflakes_count):
+        snowflake_color_index = number % len(snowflake_colors)
+        snowflakes.append(sn.Snowflake(randint(snowflake_radius,
+                                               window_width -
+                                               snowflake_radius),
+                                       randint(-300, window_height),
+                                       snowflake_radius, win,
+                                       snowflake_colors[snowflake_color_index],
+                                       snowflake_y_speed, window_height))
+
     while run:
         clock.tick(10)
         for event in pygame.event.get():
@@ -405,6 +421,9 @@ def main():
             tree.draw_tree()
         for mushroom in mushrooms:
             mushroom.draw_mushroom()
+        for snowflake in snowflakes:
+            snowflake.move()
+            snowflake.draw()
 
         pygame.display.update()
     pygame.quit()
