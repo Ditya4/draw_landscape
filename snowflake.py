@@ -4,11 +4,13 @@ from math import sin
 
 class Snowflake:
 
-    def __init__(self, x, y, radius, surface, color, y_speed, window_height):
+    def __init__(self, x, y, radius, surface, color, y_speed, window_height,
+                 snowflake_type):
         """
             x, y is a center of the snowflake (crossline)
             :move_sin_x is gonna be a movement sinus like by x coordinate
             durring falling with :y_speed of y coordinate
+            :snowflake_type — or circle of cnowflake
         """
         self.x = x
         self.y = y
@@ -17,6 +19,7 @@ class Snowflake:
         self.color = color
         self.y_speed = y_speed
         self.window_height = window_height
+        self.snowflake_type = snowflake_type
         self.move_sin_x = 0
 
     def move(self):
@@ -33,17 +36,23 @@ class Snowflake:
                          (start_point_x, start_point_y),
                          (end_point_x, end_point_y))
 
+    def draw_circle(self):
+        pygame.draw.circle(self.surface, self.color, (self.x, self.y), self.radius)
+
     def draw(self):
         """
             cause some lazy ass didt't get a correct mathematic formula we get
             some aproximatelly coeficient — delta
         """
-        delta = (self.radius * 2) // 3
-        lines = [[self.x - self.radius, self.y, self.x + self.radius, self.y],
-                 [self.x, self.y - self.radius, self.x, self.y + self.radius],
-                 [self.x - delta, self.y - delta,
-                  self.x + delta, self.y + delta],
-                 [self.x + delta, self.y - delta,
-                  self.x - delta, self.y + delta]]
-        for index in range(len(lines)):
-            self.draw_line(*lines[index])
+        if self.snowflake_type == "circle":
+            self.draw_circle()
+        else:
+            delta = (self.radius * 2) // 3
+            lines = [[self.x - self.radius, self.y, self.x + self.radius, self.y],
+                     [self.x, self.y - self.radius, self.x, self.y + self.radius],
+                     [self.x - delta, self.y - delta,
+                      self.x + delta, self.y + delta],
+                     [self.x + delta, self.y - delta,
+                      self.x - delta, self.y + delta]]
+            for index in range(len(lines)):
+                self.draw_line(*lines[index])

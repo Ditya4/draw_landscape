@@ -1,6 +1,7 @@
 import pygame
-from random import randint
+from random import randint, choice
 import snowflake as sn
+import mushroom as mushroom_module
 
 
 class Cloud:
@@ -33,44 +34,6 @@ class Cloud:
             self.y = self.cloud_y
         self.y += self.y_speed
 
-
-class Mushroom:
-
-    def __init__(self, x, y, hat_width, hat_height, stalk_width, stalk_height,
-                 surface, hat_color, stalk_color):
-        """
-            x, y — are a left botoom corner of the mushroom's stalk
-        """
-        self.x = x
-        self.y = y
-        self.hat_width = hat_width
-        self.hat_height = hat_height
-        self.stalk_width = stalk_width
-        self.stalk_height = stalk_height
-        self.surface = surface
-        self.hat_color = hat_color
-        self.stalk_color = stalk_color
-        self.center_axis_x = self.x + self.stalk_width // 2
-
-    def draw_stalk(self):
-        mushroom_stalk_points = ((self.x, self.y),
-                                 (self.x, self.y - self.stalk_height),
-                                 (self.x + self.stalk_width, self.y -
-                                  self.stalk_height),
-                                 (self.x + self.stalk_width, self.y))
-        pygame.draw.polygon(self.surface, self.stalk_color,
-                            mushroom_stalk_points)
-
-    def draw_hat(self):
-        ellipse_points = ((self.x + self.stalk_width // 2 -
-                           self.hat_width // 2,
-                           self.y - self.stalk_height - self.hat_height,
-                           self.hat_width, self.hat_height))
-        pygame.draw.ellipse(self.surface, self.hat_color, ellipse_points)
-
-    def draw_mushroom(self):
-        self.draw_stalk()
-        self.draw_hat()
 
 
 class House:
@@ -321,7 +284,7 @@ def main():
                          "firebrick1")
     tree_crown_color_index = 0
     tree_crown_size = 4
-    trees_count = 30
+    trees_count = 2
     trees = []
     # for symetry stalk_width and hat_width should be even numbers
     mushroom_hat_width = 30
@@ -330,7 +293,8 @@ def main():
     mushroom_stalk_height = 16
     mushroom_hat_colors = ("red", "green")
     mushroom_stalk_color = "brown"
-    mushrooms_count = 30
+    mushroom_type = ("single", "triple")
+    mushrooms_count = 3
     mushrooms = []
     cloud_width = 60
     cloud_height = 25
@@ -342,6 +306,7 @@ def main():
     snowflake_radius = 8
     snowflake_y_speed = 2
     snowflake_colors = ("white", "blue", "pink")
+    snowflake_types = ("snowflake", "circle")
     snowflakes = []
     snowflakes_count = 40
     points = (snow_first_point, snow_second_point, snow_third_point,
@@ -372,15 +337,15 @@ def main():
 
     for number in range(mushrooms_count):
         mushroom_hat_color_index = number % len(mushroom_hat_colors)
-        mushrooms.append(Mushroom(randint(tree_lower_segment_width // 2,
-                                  window_width -
-                                  tree_lower_segment_width // 2),
+        mushrooms.append(mushroom_module.Mushroom(randint(
+                            tree_lower_segment_width // 2,
+                            window_width - tree_lower_segment_width // 2),
                          randint(right_horizont_y, window_height),
                          mushroom_hat_width,
                          mushroom_hat_height, mushroom_stalk_width,
                          mushroom_stalk_height, win,
                          mushroom_hat_colors[mushroom_hat_color_index],
-                         mushroom_stalk_color))
+                         mushroom_stalk_color, choice(mushroom_type)))
 
     for number in range(clouds_count):
         cloud_color_index = number % len(cloud_colors)
@@ -398,7 +363,8 @@ def main():
                                        randint(-300, window_height),
                                        snowflake_radius, win,
                                        snowflake_colors[snowflake_color_index],
-                                       snowflake_y_speed, window_height))
+                                       snowflake_y_speed, window_height,
+                                       choice(snowflake_types)))
 
     while run:
         clock.tick(10)
