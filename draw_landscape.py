@@ -284,7 +284,7 @@ def main():
                          "firebrick1")
     tree_crown_color_index = 0
     tree_crown_size = 4
-    trees_count = 2
+    trees_count = 7
     trees = []
     # for symetry stalk_width and hat_width should be even numbers
     mushroom_hat_width = 30
@@ -293,19 +293,19 @@ def main():
     mushroom_stalk_height = 16
     mushroom_hat_colors = ("red", "green")
     mushroom_stalk_color = "brown"
-    mushroom_type = ("single", "triple")
-    mushrooms_count = 3
+    mushroom_type = ("single", "double")
+    mushrooms_count = 7
     mushrooms = []
-    cloud_width = 60
+    cloud_width = 100
     cloud_height = 25
     cloud_x_speed = 5
     cloud_y_speed = 1
     cloud_colors = ("white", "MistyRose2", "PaleGreen1")
     clouds_count = 15
     clouds = []
-    snowflake_radius = 8
+    snowflake_radius = 12
     snowflake_y_speed = 2
-    snowflake_colors = ("white", "blue", "pink")
+    snowflake_colors = ("red", "blue", "pink")
     snowflake_types = ("snowflake", "circle")
     snowflakes = []
     snowflakes_count = 40
@@ -338,8 +338,8 @@ def main():
     for number in range(mushrooms_count):
         mushroom_hat_color_index = number % len(mushroom_hat_colors)
         mushrooms.append(mushroom_module.Mushroom(randint(
-                            tree_lower_segment_width // 2,
-                            window_width - tree_lower_segment_width // 2),
+                            mushroom_hat_width // 2,
+                            window_width - mushroom_hat_width // 2),
                          randint(right_horizont_y, window_height),
                          mushroom_hat_width,
                          mushroom_hat_height, mushroom_stalk_width,
